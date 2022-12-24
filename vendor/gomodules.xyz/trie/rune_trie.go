@@ -120,6 +120,18 @@ func (trie *RuneTrie) WalkPath(key string, walker WalkFunc) error {
 	return nil
 }
 
+// WalkPrefix iterates over each key/value under the given key in the tree,
+// calling the given walker function for each key/value.
+// If the walker function returns an error, the walk is aborted.
+func (trie *RuneTrie) WalkPrefix(key string, walker WalkFunc) error {
+	for _, r := range key {
+		if trie = trie.children[r]; trie == nil {
+			return nil
+		}
+	}
+	return trie.walk(key, walker)
+}
+
 // RuneTrie node and the rune key of the child the path descends into.
 type nodeRune struct {
 	node *RuneTrie

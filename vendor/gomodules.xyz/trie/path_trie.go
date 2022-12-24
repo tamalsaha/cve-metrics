@@ -159,6 +159,28 @@ func (trie *PathTrie) WalkPath(key string, walker WalkFunc) error {
 	return nil
 }
 
+// WalkPrefix iterates over each key/value under the given key in the tree,
+// calling the given walker function for each key/value.
+// If the walker function returns an error, the walk is aborted.
+func (trie *PathTrie) WalkPrefix(key string, walker WalkFunc) error {
+	for part, i := trie.segmenter(key, 0); ; part, i = trie.segmenter(key, i) {
+		if part != "" {
+			if trie = trie.children[part]; trie == nil {
+				return nil
+			}
+		}
+		if i == -1 {
+			var k string
+			if i == -1 {
+				k = key
+			} else {
+				k = key[0:i]
+			}
+			return trie.walk(k, walker)
+		}
+	}
+}
+
 // PathTrie node and the part string key of the child the path descends into.
 type nodeStr struct {
 	node *PathTrie
